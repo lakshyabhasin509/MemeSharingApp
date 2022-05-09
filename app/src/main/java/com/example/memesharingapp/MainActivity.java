@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +33,9 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String memeUrl = null;
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,null,
                 response -> {
                     Log.d("success", "klkhjlkjh");
-                    String memeUrl = null;
+
                     try {
                         memeUrl = response.getString("url");
                         loadingBar.onVisibilityAggregated(true);
@@ -89,8 +93,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void shareMeme(View view) {
+        Intent intent=new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT,"Hey checkout this cool meme"+memeUrl);
+        Intent chooser=Intent.createChooser(intent,"share this image using ....");
+        startActivity(chooser);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void nextMeme(View view) {
 loadMeme();
     }
