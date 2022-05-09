@@ -1,11 +1,16 @@
 package com.example.memesharingapp;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +22,10 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,9 +39,11 @@ public class MainActivity extends AppCompatActivity {
         loadMeme();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void loadMeme(){
 
-        ImageView memeImage=findViewById(R.id.memeImage);
+        ProgressBar loadingBar=findViewById(R.id.progressBar);
+        ImageView memeImage=findViewById(R.id.memeImageView);
 
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://meme-api.herokuapp.com/gimme";
@@ -40,13 +51,33 @@ public class MainActivity extends AppCompatActivity {
 // Request a string response from the provided URL.
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,null,
                 response -> {
-
+                    Log.d("success", "klkhjlkjh");
+                    String memeUrl = null;
                     try {
-                        String memeUrl = response.getString(url);
-                        Glide.with(this).load(memeUrl).into(memeImage);
+                        memeUrl = response.getString("url");
+                        loadingBar.onVisibilityAggregated(true);
+
+                        Glide.with(this).load(memeUrl).listener(new RequestListener<Drawable>() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                               loadingBar.onVisibilityAggregated(false);
+                               loadMeme();
+                                return false;
+                            }
+
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingBar.onVisibilityAggregated(false);
+                                return false;
+                            }
+                        }).into(memeImage);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+
 
 
                 }, error -> {
@@ -61,6 +92,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void nextMeme(View view) {
-
+loadMeme();
     }
 }
