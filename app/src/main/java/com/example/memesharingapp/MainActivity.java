@@ -49,8 +49,9 @@ public class MainActivity extends AppCompatActivity {
         ProgressBar loadingBar=findViewById(R.id.progressBar);
         ImageView memeImage=findViewById(R.id.memeImageView);
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+//        RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://meme-api.herokuapp.com/gimme";
+
 
 // Request a string response from the provided URL.
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,null,
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
                 });
-        queue.add(jsonObjectRequest);
+       SingletonVolley.getInstance(this).addToRequestQueue(jsonObjectRequest);
 
     }
     public void shareMeme(View view) {
